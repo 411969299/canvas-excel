@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 12px;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        .row {
+            width: 1000px;
+            height: 600px;
+            overflow: auto;
+            position: relative;
+        }
+
+        .excel {
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            width: 1500px;
+            height: 700px;
+        }
+
+        #canvasExcel {
+            overflow: scroll;
+            position: relative;
+            /* min-height: 100%; */
+            width: 1500px;
+            height: 650px;
+        }
+
+        .panel {
+            width: 3900px;
+            height: 8000px;
+            /* width: 7800px;
+            height: 16000px; */
+            position: absolute;
+            top: 0;
+            left: 0;
+            /* border: 1px solid red; */
+            z-index: 10;
+        }
+
+        .assistPanel {
+            z-index: 12;
+            visibility: hidden;
+        }
+
+        .title {
+            /* background-color: #217346; */
+            height: 43px;
+            overflow: hidden;
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="excel">
+        <div class="title"></div>
+        <div class="gongneng"></div>
+        <div class="editbox"></div>
+        <div id="canvasExcel">
+            <canvas id="dataCanvas1" class="panel" width="7800" height="16000"> 您的浏览器不支持canvas</canvas>
+            <canvas id="assistCanvas" class="panel assistPanel" width="7800" height="16000"> 您的浏览器不支持canvas</canvas>
+        </div>
+        <div class="selectAndInput"></div>
+    </div>
+
+    <!-- spreadjs输入框样式 -->
+    <!-- <div
+        style="position: absolute; margin: 0px; padding: 0px; overflow: hidden; box-sizing: content-box; resize: none; outline: none; border: 2px solid rgb(82, 146, 247); box-shadow: rgba(0, 0, 0, 0.4) 1px 2px 5px; background-color: white; z-index: 2000; top: 237.175px; left: 309px; width: 86px; height: 30px;">
+        <div style="position: absolute; outline: none; border: none; left: 0px; top: 0px;">
+            <div tabindex="-1" autocomplete="off" contenteditable="true" gcuielement="gcEditingInput"
+                style="font: 14.6667px Calibri; outline: none; resize: none; border: none; padding: 1px; vertical-align: top; min-height: 0px; box-sizing: content-box; background: transparent; overflow-wrap: normal; overflow: hidden; display: table-cell; word-break: normal; text-align: left; width: 85px; height: 29px; max-width: 1202px; float: none;">
+            </div>
+        </div>
+    </div> -->
+
+    <!-- 用多个canvas  -->
+    <!-- <div id="vp" style="width: 0px; height: 0px;">
+        <div class="shapeWraper" style="position: relative;">
+            <canvas width="0" height="0" id="vp_vpshapeHost0"
+                style="position: absolute; pointer-events: none; width: 0px; height: 0px; z-index: 900; left: 40px; top: 20px;"></canvas>
+            <canvas width="1843" height="0" id="vp_vpshapeHost1"
+                style="position: absolute; pointer-events: none; width: 1474px; height: 0px; z-index: 900; left: 40px; top: 20px;"></canvas><canvas
+                width="0" height="0" id="vp_vpshapeHost2"
+                style="position: absolute; pointer-events: none; width: 0px; height: 0px; z-index: 900; left: 1514px; top: 20px;"></canvas><canvas
+                width="0" height="0" id="vp_vpshapeHost3"
+                style="position: absolute; pointer-events: none; width: 0px; height: 0px; z-index: 900; left: 40px; top: 20px;"></canvas><canvas
+                width="1843" height="0" id="vp_vpshapeHost4"
+                style="position: absolute; pointer-events: none; width: 1474px; height: 0px; z-index: 900; left: 40px; top: 20px;"></canvas><canvas
+                width="0" height="0" id="vp_vpshapeHost5"
+                style="position: absolute; pointer-events: none; width: 0px; height: 0px; z-index: 900; left: 1514px; top: 20px;"></canvas><canvas
+                width="0" height="0" id="vp_vpshapeHost6"
+                style="position: absolute; pointer-events: none; width: 0px; height: 0px; z-index: 900; left: 40px; top: 20px;"></canvas><canvas
+                width="1843" height="0" id="vp_vpshapeHost7"
+                style="position: absolute; pointer-events: none; width: 1474px; height: 0px; z-index: 900; left: 40px; top: 20px;"></canvas><canvas
+                width="0" height="0" id="vp_vpshapeHost8"
+                style="position: absolute; pointer-events: none; width: 0px; height: 0px; z-index: 900; left: 1514px; top: 20px;"></canvas>
+        </div>
+        <canvas id="vp_vp" gcuielement="gcWorksheetCanvas" width="1893" height="3"
+            style="width: 1514px; height: 2px; cursor: default;">你需要一个完全支持HTML5 Canvas的浏览器来运行SpreadJS</canvas>
+    </div> -->
+</body>
+
+<script>
+
+</script>
+<!-- <script src="./js/paint.js"></script> -->
+<script src="./js/index.js"></script>
+<!-- <script src="./js/canvas.js"></script> -->
+
+</html>
