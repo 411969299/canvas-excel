@@ -40,6 +40,7 @@
             /* min-height: 100%; */
             width: 1500px;
             height: 650px;
+            
         }
 
         .panel {
@@ -52,6 +53,7 @@
             left: 0;
             /* border: 1px solid red; */
             z-index: 10;
+            cursor: default;
         }
 
         .assistPanel {
@@ -68,13 +70,13 @@
     </style>
 </head>
 
-<body>
+<body >
     <div class="excel">
         <div class="title"></div>
         <div class="gongneng"></div>
         <div class="editbox"></div>
         <div id="canvasExcel">
-            <canvas id="dataCanvas1" class="panel" width="7800" height="16000"> 您的浏览器不支持canvas</canvas>
+            <canvas id="dataCanvas0" class="panel" width="7800" height="16000"> 您的浏览器不支持canvas</canvas>
             <canvas id="assistCanvas" class="panel assistPanel" width="7800" height="16000"> 您的浏览器不支持canvas</canvas>
         </div>
         <div class="selectAndInput"></div>
