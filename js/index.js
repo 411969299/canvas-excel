@@ -39,7 +39,8 @@ function createCellPos2(n) {
 // console.log(createCellPos2(27*26+1))
 // console.log(createCellPos2(28))
 // console.log(createCellPos2(29))
-// console.log(createCellPos2(30))
+// let  bbb= 0 || !!0
+// console.log(bbb)
 
 
 // 文档类
@@ -59,8 +60,14 @@ class CreateSheet {
         } // 记录被操作过的列宽
 
         // 存储线条 x，y的位置
-        this.rowLineArr = [{n:0}] // 行
-        this.columnLineArr = [{n:0}, {n:33}] //列
+        this.rowLineArr = [{
+            n: 0
+        }] // 行
+        this.columnLineArr = [{
+            n: 0
+        }, {
+            n: 33
+        }] //列
 
         this.cells = [] //存放格子对象
         this.ctx = null
@@ -79,26 +86,34 @@ class CreateSheet {
             if (i >= 2) {
                 // 从第三条线 开始算，基于前一个的值增加
                 // 改变某一条线之后，数组后面的每一根线 全改
-                this.columnLineArr.push({n:this.columnLineArr[this.columnLineArr.length - 1].n + this.columnWidth + this.lineWidth})
+                this.columnLineArr.push({
+                    n: this.columnLineArr[this.columnLineArr.length - 1].n + this.columnWidth + this.lineWidth
+                })
             }
             for (let j = 0; j < 200; j++) {
                 // 行
                 let obj = Object.create(null)
-                obj.x = {n:0}
-                obj.y = {n:0}
+                obj.x = {
+                    n: 0
+                }
+                obj.y = {
+                    n: 0
+                }
 
                 if (j >= 1) {
                     // 从第二条线 开始算，基于前一个的值增加
                     let rlen = this.rowLineArr.length - 1
-                    this.rowLineArr.push({n:this.rowLineArr[rlen > 0 ? rlen : 0].n + this.rowHeight + this.lineWidth})
+                    this.rowLineArr.push({
+                        n: this.rowLineArr[rlen > 0 ? rlen : 0].n + this.rowHeight + this.lineWidth
+                    })
                 }
-                
-               
 
-              // 使用时，手动增加this.lineWidth 或者 用Object.defineProperty 自动增加
+
+
+                // 使用时，手动增加this.lineWidth 或者 用Object.defineProperty 自动增加
                 obj.x = this.columnLineArr[i]
-                obj.y = this.rowLineArr[j] 
-                
+                obj.y = this.rowLineArr[j]
+
 
                 if (i == 0 && j == 0) {
                     this.cells[i].push(obj)
@@ -146,12 +161,16 @@ class CreateSheet {
     //     this.ctx.stroke();
     // }
     paintGrid() {
+
         let {
             ctx,
             lineWidth,
             columnWidth,
-            rowHeight
+            rowHeight,
+            columnLineArr,
+            rowLineArr
         } = this
+        ctx.clearRect(0, 0, 7800, 16000);
         ctx.lineWidth = 1
         // ctx.strokeStyle ="#d4d4d4" 
         ctx.strokeStyle = "#bbb"
@@ -164,141 +183,208 @@ class CreateSheet {
         // paintLine(x, 0, x, 16000)
         ctx.beginPath();
 
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, 16000);
+
+        //  // 缩放2倍
+        x += correction + (33 + lineWidth) * 2
         ctx.moveTo(x, 0);
         ctx.lineTo(x, 16000);
 
-        for (let i = 1; i <= 40; i++) {
+
+        for (let i = 2; i < columnLineArr.length; i++) {
             // 列
 
-            if (i == 1) {
-                //第一列特殊处理
-                x += correction + (33 + lineWidth) * 2 // 缩放2倍
+            // x += correction + (columnWidth + lineWidth) * 2 // 缩放2倍
+            let n = correction + columnLineArr[i].n * 2
+            ctx.moveTo(n, 0);
+            ctx.lineTo(n, 16000);
 
-            } else {
-                x += correction + (columnWidth + lineWidth) * 2 // 缩放2倍
-                ctx.fillStyle = "#000"
-                ctx.font = "28px  Microsoft YaHei UI";
-                ctx.textAlign = "center";
-                // let textx =  i * (columnWidth + lineWidth) * 2 // 
-                ctx.fillText(createCellPos2(i - 1), x - columnWidth, lineWidth + rowHeight); //如果缩放比是1，要居中的话，x应该除2
-
-            }
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, 16000);
-            // paintLine(x, 0, x, 16000)
-
-            // createCellPos2()
+            ctx.fillStyle = "#000"
+            ctx.font = "28px  Microsoft YaHei UI";
+            ctx.textAlign = "center";
+            // let textx =  i * (columnWidth + lineWidth) * 2 // 
+            let ln = correction + columnLineArr[i-1].n * 2
+            ctx.fillText(createCellPos2(i - 1), (n-ln)/2+ln, lineWidth + rowHeight); //如果缩放比是1，要居中的话，x应该除2
 
         }
 
 
 
-        for (let j = 1; j <= 200; j++) {
-            // 行
-            let y = correction + j * (rowHeight + lineWidth) * 2
+        for (let j = 1; j < rowLineArr.length; j++) {
+            // 行 从第二行开始
+            let y = correction + rowLineArr[j].n * 2
+            // let y = correction + j * (rowHeight + lineWidth) * 2
             // paintLine(0, y, 7800, y)
             ctx.moveTo(0, y);
             ctx.lineTo(7800, y);
 
 
+            ctx.fillStyle = "#e6e6e6"
+            ctx.fillRect(lineWidth, y, 33 * 2, (rowHeight + lineWidth) * 2);
 
-            if (j > 0) {
-                // 从第二行开始
-                ctx.fillStyle = "#e6e6e6"
-                ctx.fillRect(lineWidth, y, 33 * 2, rowHeight * 2 + lineWidth);
+            ctx.fillStyle = "#000"
+            ctx.font = "24px  Microsoft YaHei UI";
+            ctx.textAlign = "center";
 
-                ctx.fillStyle = "#000"
-                ctx.font = "24px  Microsoft YaHei UI";
-                ctx.textAlign = "center";
-                let texty = correction + (j + 1) * (rowHeight + lineWidth) * 2 // 在下一格 画本格的字
+            if (j + 1 < rowLineArr.length) {
+                // let texty = correction + (j + 1) * (rowHeight + lineWidth) * 2 // 在下一格 画本格的字
+                let texty = correction + rowLineArr[j + 1].n * 2
                 ctx.fillText(j, lineWidth + 33, texty - 12); //如果缩放比是1，要居中的话，x应该除2
             }
+
 
         }
 
         ctx.stroke(); // 显示路径
 
     }
-    getBoxFromXY(x,y){
-        let {rowLineArr,columnLineArr,cells} = this
-        // rowLineArr  行 columnLineArr  列
+    getBoxFromXY(x, y) {
         //通过坐标 获取当前属于哪个盒子
-        let temp = true,i=0,j=0
-        console.log(x,y)
-        while(x>columnLineArr[i].n && temp){
-             if(x<columnLineArr[i+1].n){
+        let {
+            rowLineArr,
+            columnLineArr,
+            cells
+        } = this
+        // rowLineArr  行 columnLineArr  列
+
+        let temp = true,
+            i = 0,
+            j = 0
+        // console.log(x,y)
+        while (x > columnLineArr[i].n && temp) {
+            if (x < columnLineArr[i + 1].n) {
                 temp = !temp
-             }else{
+            } else {
                 i++
-             }
-            
+            }
+
         }
-        
+
         temp = true
-        while(y>rowLineArr[j].n && temp){
-            if(y<rowLineArr[j+1].n){
+        while (y > rowLineArr[j].n && temp) {
+            if (y < rowLineArr[j + 1].n) {
                 temp = !temp
-             }else{
+            } else {
                 j++
-             }
+            }
         }
-        console.log(i,j)
+        // console.log(i,j)
         return cells[i][j]
-        
+
         // this.rowLineArr = [0] // 行
         // this.columnLineArr = [0, 33] //列
     }
-    isNearbyLine(x,y){
-        // 通过坐标判断是否在线段附近 误差 正负2px
-        let {rowLineArr,columnLineArr} = this
-        let i=0,j=0
-        console.log(x,y)
+    isNearbyLine(x, y) {
+        // 通过坐标判断是否在线段附近 误差 正负3px
+        let {
+            rowLineArr,
+            columnLineArr,
+            rowHeight
+        } = this
+        let ae = 3
+        // console.log(x, y)
         // 常规线性搜索
-        for(;i<columnLineArr.length;i++){
-            if(x<columnLineArr[i].n+2 && x>columnLineArr[i].n-2){
-                break;
+        // let i=0,j=0
+        // for(;i<columnLineArr.length;i++){
+        //     if(x<columnLineArr[i].n+2 && x>columnLineArr[i].n-2){
+        //         break;
+        //     }
+        // }
+        // for(;j<columnLineArr.length;j++){
+        //     if(y<rowLineArr[j].n+2 && y>rowLineArr[j].n-2){
+        //         break;
+        //     }
+        // }
+
+        //二分法搜索  坐标如果实时的在不断更新的时候，这里可能会出问题，方案：1先判断坐标，2随时打算迭代
+        function search(arr, coo, s, e) {
+            // let len = arr.length
+            //单数时候
+
+            s = s || 0
+            e = e || arr.length - 1
+            let m = Math.floor((e - s) / 2) + s
+
+            // console.log(s,e,m)
+
+            let mid = arr[m].n
+
+            if (coo > mid + ae) {
+
+                if (coo < arr[m + 1].n - ae) {
+                    //如果只是在当前的格子内就不用判断了
+                    return null
+                }
+                return search(arr, coo, m, e)
+            } else if (coo < mid - ae) {
+                if (coo > arr[m - 1].n + ae) {
+                    //如果只是在当前的格子内就不用判断了
+                    return null
+                }
+                return search(arr, coo, s, m)
+            } else {
+                return m
             }
+
+        }
+        if (y < rowHeight || x < 33) {
+
+
+
+            let xline = search(columnLineArr, x)
+            if (xline) {
+                return {
+                    xline
+                }
+            }
+            let yline = search(rowLineArr, y)
+            if (yline) {
+                return {
+                    yline
+                }
+            }
+
+        } else {
+
         }
 
-        //二分法搜索
-        function search(arr,coo,s,e){
-            let len = arr.length
-            let mid = Math.floor(len/2) 
-            s = 0 || s
-            let start = arr[0].n, end = arr[mid].n
-            if(coo>end+2){
-
-            }else if(coo<end-2){
-
-            }else{
-
-            }
-        }
-
-
-        for(;j<columnLineArr.length;j++){
-            if(y<rowLineArr[j].n+2 && y>rowLineArr[j].n-2){
-                break;
-            }
-        }
-
-        console.log(i,j)
+        return null
+        // console.log(i,j)
     }
-    setLineArr(obj){
-        //设置线段的位置 {x|y:[a,b]}; x or y, from a to b
-        let {rowLineArr,columnLineArr} = this
+    setLineArr(obj) {
+        //设置线段的位置 {x|y:number,t:number}; x或者y的第几根线，t鼠标移动到具体的坐标
+        // 暂时规定，不能超过前一个的坐标，可以超过后一个
+        let {
+            rowLineArr,
+            columnLineArr
+        } = this
 
-        function c(a,b){
-            a - b>0?'向右':"向左"
-        }
-        if(obj.hasOwnProperty('x')){
-            obj.x
-        }
-        if(obj.hasOwnProperty('y')){
+        // function c(a, b) {
+        //     a - b > 0 ? '向右' : "向左"
+        // }
+        if (obj.hasOwnProperty('x') && obj.x > 1) {
+            // 列 columnLineArr
+            // 边界
+            let t = obj.t < columnLineArr[obj.x - 1].n + 5 ? columnLineArr[obj.x - 1].n + 5 : obj.t
+
+            let c = t - columnLineArr[obj.x].n
+
+            for (let i = obj.x; i < columnLineArr.length; i++) {
+                columnLineArr[i].n += c
+            }
+
+
+            console.log("setLineArr = ", columnLineArr)
+
 
         }
+        if (obj.hasOwnProperty('y')) {
 
-        
+        }
+        this.paintGrid()
+
+
     }
 
 }
@@ -306,10 +392,13 @@ class CreateSheet {
 //globalCompositeOperation
 // 鼠标双击 单击 用 时间判断 500ms
 class ControlSheet {
-    static isMoveLine = false
+
     constructor() {
         this.sheets = [] //存放文档实例对象
-        this.currentSheet = 0 //当前文档，默认展示第一个文档
+        this.currentSheetIndex = 0 //当前文档坐标
+        this.isMouseDown = false // 鼠标是否按下
+        this.eventCache = null
+        // this.isNearLine=null // 是否准备触发点击拖动
     }
     initSheet(s) {
         // console.log()
@@ -331,11 +420,17 @@ class ControlSheet {
 
         // getDom("canvasExcel").style.height = cheight+"px"
         // this.getWindowSize()
-        let sheet1 = new CreateSheet()
-        sheet1.init(this.sheets.length)
-        this.sheets.push(sheet1)
+        let newSheet = new CreateSheet()
+        newSheet.init(this.sheets.length)
 
-        let dom = document.getElementById(sheet1.name)
+        let obj = Object.create(null)
+        obj.sheet = newSheet
+        obj.isMoveLine = null
+
+        this.sheets.push(obj)
+        this.currentSheetIndex = this.sheets.length - 1 // 每次初始化后，指向最新的文档，多个文档切换后要保持同步
+
+        let dom = document.getElementById(newSheet.name)
         dom.addEventListener("mousedown", this.mousedownHandle.bind(this))
         dom.addEventListener("mousemove", this.mousemoveHandle.bind(this), true)
         dom.addEventListener("mouseup", this.mouseupHandle.bind(this))
@@ -348,14 +443,28 @@ class ControlSheet {
         // e.layerX
         // e.layerY
         // 33 是暂定的第一列宽
-        //根据xy计算 是哪个容器
+        this.isMouseDown = true
+        let currSheet = this.sheets[this.currentSheetIndex]
+        if (currSheet.isMoveLine) {
+            // this.eventCache
+            this.eventCache = {
+                ...currSheet.isMoveLine
+            }
 
+            console.log("currSheet.isMoveLine", currSheet.isMoveLine)
+        } else {
+            this.eventCache = null
+        }
+        return;
         let ex = 0,
-            ey = 0,
-            sheet = this.sheets[this.currentSheet]
+            ey = 0
 
-            sheet.getBoxFromXY(e.offsetX,e.offsetY)
-            return;
+        currSheet.isMoveLine = currSheet.sheet.isNearbyLine(e.offsetX, e.offsetY)
+        if (currSheet.isMoveLine) {
+            // 点击
+        }
+        // sheet.getBoxFromXY(e.offsetX,e.offsetY)
+
         if (e.offsetX < 33 + sheet.lineWidth) {
             // console.log(0)
         } else {
@@ -383,12 +492,44 @@ class ControlSheet {
 
     }
     mousemoveHandle(e) {
-        if (ControlSheet.isMoveLine) {
+        let currSheet = this.sheets[this.currentSheetIndex]
+        currSheet.isMoveLine = currSheet.sheet.isNearbyLine(e.offsetX, e.offsetY)
 
+        if (this.isMouseDown && currSheet.isMoveLine) {
+            // 按下鼠标后移动
         }
     }
     mouseupHandle(e) {
         // console.log(e)
+        let {
+            isMouseDown,
+            eventCache
+        } = this
+
+        if (isMouseDown && eventCache) {
+            // 按下鼠标后移动
+            let currSheet = this.sheets[this.currentSheetIndex]
+            console.log("mouseupHandle this.eventCache", eventCache)
+            if (eventCache.xline) {
+                // 移动纵向，列
+                currSheet.sheet.setLineArr({
+                    x: eventCache.xline,
+                    t: e.offsetX
+                })
+
+            }
+            if (eventCache.yline) {
+                // 移动横向 行
+                currSheet.sheet.setLineArr({
+                    y: eventCache.xline,
+                    t: e.offsetY
+                })
+
+            }
+        }
+        isMouseDown = false
+        // let currSheet = this.sheets[this.currentSheetIndex]
+
     }
     getWindowSize() {
         //获取当前窗口的宽高
