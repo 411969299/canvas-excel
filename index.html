@@ -13,7 +13,7 @@
             border: 0;
             font-size: 12px;
         }
-
+        input,select,option,textarea{outline: none;}
         html,
         body {
             height: 100%;
@@ -36,11 +36,14 @@
 
         #canvasExcel {
             overflow: scroll;
-            position: relative;
+            position: absolute;
+            top: 0;
+            left: 0;
             /* min-height: 100%; */
             width: 1500px;
             height: 650px;
-            
+            z-index: 10;
+            /* border: 1px solid red; */
         }
 
         .panel {
@@ -48,11 +51,9 @@
             height: 8000px;
             /* width: 7800px;
             height: 16000px; */
-            position: absolute;
-            top: 0;
-            left: 0;
+            
             /* border: 1px solid red; */
-            z-index: 10;
+            
             cursor: default;
         }
 
@@ -67,6 +68,19 @@
             overflow: hidden;
 
         }
+        .selectAndInput{
+            position: absolute;
+            z-index: 20;
+            top:0; left: 0;
+            pointer-events: auto;
+        }
+        .selectAndInput .si_circle{
+            border: 2px solid #217346;
+            width: 100%; height: 100%;
+        }
+        .selectAndInput .si_circle input{
+            width: 100%; height: 100%;
+        }
     </style>
 </head>
 <!-- cursor w-resize 水平调整 |s-resize 垂直调整 -->
@@ -77,9 +91,14 @@
         <div class="editbox"></div>
         <div id="canvasExcel">
             <canvas id="dataCanvas0" class="panel" width="7800" height="16000"> 您的浏览器不支持canvas</canvas>
-            <canvas id="assistCanvas" class="panel assistPanel" width="7800" height="16000"> 您的浏览器不支持canvas</canvas>
+            <!-- <canvas id="assistCanvas" class="panel assistPanel" width="7800" height="16000"> 您的浏览器不支持canvas</canvas> -->
+            <div id="SelectAndInput" class="selectAndInput" style="display: none;">
+                <div class="si_circle">
+                    <input type="text" id="wordInput" class="si_input" style="display: none;">
+                </div>
+            </div>
         </div>
-        <div class="selectAndInput"></div>
+        
     </div>
 
     <!-- spreadjs输入框样式 -->

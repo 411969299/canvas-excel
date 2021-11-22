@@ -47,6 +47,7 @@ function createCellPos2(n) {
 class CreateSheet {
     constructor() {
         this.name = ""
+        this.dom = null
         this.rowHeight = 23 //默认行高
         this.columnWidth = 79 //默认列宽
         this.lineWidth = 1
@@ -76,7 +77,9 @@ class CreateSheet {
     init(num, cwidth, cheight) {
 
         this.name = "dataCanvas" + num
-        this.ctx = getDom(this.name).getContext('2d')
+        this.dom = getDom(this.name)
+
+        this.ctx = this.dom.getContext('2d')
 
         // width="7800" height="16000"
         for (let i = 0; i < 40; i++) {
@@ -204,24 +207,28 @@ class CreateSheet {
             ctx.font = "28px  Microsoft YaHei UI";
             ctx.textAlign = "center";
             // let textx =  i * (columnWidth + lineWidth) * 2 // 
-            let ln = correction + columnLineArr[i-1].n * 2
-            ctx.fillText(createCellPos2(i - 1), (n-ln)/2+ln, lineWidth + rowHeight); //如果缩放比是1，要居中的话，x应该除2
+            let ln = correction + columnLineArr[i - 1].n * 2
+            ctx.fillText(createCellPos2(i - 1), (n - ln) / 2 + ln, lineWidth + rowHeight); //如果缩放比是1，要居中的话，x应该除2
 
         }
-
 
 
         for (let j = 1; j < rowLineArr.length; j++) {
             // 行 从第二行开始
             let y = correction + rowLineArr[j].n * 2
-            // let y = correction + j * (rowHeight + lineWidth) * 2
-            // paintLine(0, y, 7800, y)
+            let ln;
+            if (j + 1 < rowLineArr.length) {
+                ln = correction + rowLineArr[j + 1].n * 2
+            } else {
+                break;
+            }
+
             ctx.moveTo(0, y);
             ctx.lineTo(7800, y);
 
 
             ctx.fillStyle = "#e6e6e6"
-            ctx.fillRect(lineWidth, y, 33 * 2, (rowHeight + lineWidth) * 2);
+            ctx.fillRect(lineWidth, y, 33 * 2, ln - y);
 
             ctx.fillStyle = "#000"
             ctx.font = "24px  Microsoft YaHei UI";
@@ -229,10 +236,8 @@ class CreateSheet {
 
             if (j + 1 < rowLineArr.length) {
                 // let texty = correction + (j + 1) * (rowHeight + lineWidth) * 2 // 在下一格 画本格的字
-                let texty = correction + rowLineArr[j + 1].n * 2
-                ctx.fillText(j, lineWidth + 33, texty - 12); //如果缩放比是1，要居中的话，x应该除2
+                ctx.fillText(j, lineWidth + 33, (ln - y) / 2 + y + 12); //如果缩放比是1，要居中的话，x应该除2,求出中点，再加字号的一半
             }
-
 
         }
 
@@ -248,12 +253,16 @@ class CreateSheet {
         } = this
         // rowLineArr  行 columnLineArr  列
 
-        let temp = true,
-            i = 0,
-            j = 0
+        let i = 0,
+            j = 0,
+            width = 0,
+            height = 0,
+            temp = true
         // console.log(x,y)
-        while (x > columnLineArr[i].n && temp) {
+        while (x > columnLineArr[i].n && i + 1 < columnLineArr.length && temp) {
+
             if (x < columnLineArr[i + 1].n) {
+                width = columnLineArr[i + 1].n - columnLineArr[i].n
                 temp = !temp
             } else {
                 i++
@@ -262,13 +271,16 @@ class CreateSheet {
         }
 
         temp = true
-        while (y > rowLineArr[j].n && temp) {
+        while (y > rowLineArr[j].n && j + 1 < rowLineArr.length && temp) {
             if (y < rowLineArr[j + 1].n) {
+                height = rowLineArr[j + 1].n - rowLineArr[j].n
                 temp = !temp
             } else {
                 j++
             }
         }
+        cells[i][j].width = width
+        cells[i][j].height = height
         // console.log(i,j)
         return cells[i][j]
 
@@ -374,13 +386,22 @@ class CreateSheet {
                 columnLineArr[i].n += c
             }
 
-
-            console.log("setLineArr = ", columnLineArr)
+            console.log("set columnLineArr = ", columnLineArr)
 
 
         }
-        if (obj.hasOwnProperty('y')) {
 
+        if (obj.hasOwnProperty('y') && obj.y > 1) {
+            let t = obj.t < rowLineArr[obj.y - 1].n + 5 ? rowLineArr[obj.y - 1].n + 5 : obj.t
+
+            let c = t - rowLineArr[obj.y].n
+
+            for (let i = obj.y; i < rowLineArr.length; i++) {
+                rowLineArr[i].n += c
+            }
+
+
+            console.log("set rowLineArr = ", rowLineArr)
         }
         this.paintGrid()
 
@@ -397,8 +418,14 @@ class ControlSheet {
         this.sheets = [] //存放文档实例对象
         this.currentSheetIndex = 0 //当前文档坐标
         this.isMouseDown = false // 鼠标是否按下
-        this.eventCache = null
-        // this.isNearLine=null // 是否准备触发点击拖动
+        this.eventCache = null // 是否是拖动线条
+        this.isDoubleclick = {
+            num: 0,
+            time: 0
+        } // 是否双击
+        this.selectDom = document.getElementById("SelectAndInput")
+        this.inputDom = document.getElementById("wordInput")
+        this.cache = {}
     }
     initSheet(s) {
         // console.log()
@@ -431,12 +458,56 @@ class ControlSheet {
         this.currentSheetIndex = this.sheets.length - 1 // 每次初始化后，指向最新的文档，多个文档切换后要保持同步
 
         let dom = document.getElementById(newSheet.name)
+        // let dom = document.getElementById("canvasExcel")
         dom.addEventListener("mousedown", this.mousedownHandle.bind(this))
         dom.addEventListener("mousemove", this.mousemoveHandle.bind(this), true)
         dom.addEventListener("mouseup", this.mouseupHandle.bind(this))
-        // 
+
+        let sidom = document.getElementById("SelectAndInput")
+        let canvasDom = document.getElementById("canvasExcel")
+        canvasDom.addEventListener("mousedown", this.canvasBrokers.bind(this))
+        // sidom.addEventListener("mousedown", this.sidom_mousedownHandle.bind(this))
+        // 单击一下body 选中，单击后拖动鼠标 多选，双击一个显示input
+
     }
 
+    isDouble() {
+        if (this.isDoubleclick.time == 0) {
+
+        } else {
+            // console.log(Date.now(),this.isDoubleclick.time)
+            if (Date.now() - this.isDoubleclick.time <= 500) {
+                // 双击
+                this.isDoubleclick.time = Date.now()
+                return true
+            }
+
+        }
+        this.isDoubleclick.time = Date.now()
+        return false
+    }
+    canvasBrokers(e) {
+        let t = e.target
+        if (t.nodeName == "CANVAS") {
+
+        } else if (t.className == "selectAndInput" || t.className == "si_circle") {
+            let dc = this.isDouble()
+            if (dc) {
+                // 双击 显示input
+                this.inputDom.style.display = "block"
+            } else {
+                // 单击选中 显示框
+                // if(this.cache.boxobj && this.cache.boxobj.name != obj.name){
+                //     console.log(this.cache.boxobj)
+                //     this.inputDom.style.display = "none"
+                // }
+
+            }
+        }
+    }
+    sidom_mousedownHandle(e) {
+
+    }
     mousedownHandle(e) {
         // console.log()
 
@@ -444,6 +515,11 @@ class ControlSheet {
         // e.layerY
         // 33 是暂定的第一列宽
         this.isMouseDown = true
+
+        let dc = this.isDouble()
+
+
+        // 是否移动到线段上
         let currSheet = this.sheets[this.currentSheetIndex]
         if (currSheet.isMoveLine) {
             // this.eventCache
@@ -452,24 +528,53 @@ class ControlSheet {
             }
 
             console.log("currSheet.isMoveLine", currSheet.isMoveLine)
+            return false;
         } else {
             this.eventCache = null
         }
+
+        // console.log("isDouble = ",this.isDouble())
+        let obj = currSheet.sheet.getBoxFromXY(e.offsetX, e.offsetY)
+        console.log("obj = ", obj)
+        if (obj.type == "body") {
+            if(this.cache.boxobj == obj){
+                // 同一个box
+            }else{
+                this.inputDom.style.display = "none"
+                this.selectDom.style.display = "none"
+                this.selectDom.style.cssText = "top:" + (obj.y.n - 2) + "px;left:" + (obj.x.n - 2) + "px;width:" + obj.width + "px;height:" + obj.height + "px;display:block"
+    
+            }
+            
+            // console.log("dc = ",dc)
+            // if(dc){
+            //     // 双击 显示input
+            //     this.inputDom.style.display = "block"
+            // }else{
+            //     // 单击选中 显示框
+            //     if(this.cache.boxobj && this.cache.boxobj.name != obj.name){
+            //         console.log(this.cache.boxobj)
+            //         this.inputDom.style.display = "none"
+            //     }
+
+            // }
+            this.cache.boxobj = obj
+        }
+
+
         return;
+
         let ex = 0,
             ey = 0
 
-        currSheet.isMoveLine = currSheet.sheet.isNearbyLine(e.offsetX, e.offsetY)
-        if (currSheet.isMoveLine) {
-            // 点击
-        }
+
         // sheet.getBoxFromXY(e.offsetX,e.offsetY)
 
         if (e.offsetX < 33 + sheet.lineWidth) {
             // console.log(0)
         } else {
             // 减去第一列宽 然后 除宽度 向上求整
-            ex = Math.ceil((e.offsetX - (33 + sheet.lineWidth)) / (sheet.columnWidth + sheet.lineWidth))
+            // ex = Math.ceil((e.offsetX - (33 + sheet.lineWidth)) / (sheet.columnWidth + sheet.lineWidth))
 
         }
 
@@ -492,11 +597,50 @@ class ControlSheet {
 
     }
     mousemoveHandle(e) {
+        let {
+            eventCache,
+            isMouseDown
+        } = this
         let currSheet = this.sheets[this.currentSheetIndex]
-        currSheet.isMoveLine = currSheet.sheet.isNearbyLine(e.offsetX, e.offsetY)
+        
 
-        if (this.isMouseDown && currSheet.isMoveLine) {
+        // console.log(isMouseDown,eventCache)
+        if (isMouseDown) {
             // 按下鼠标后移动
+            if (eventCache) {
+                // eventCache 和 cache.boxobj 同时只能存在一个
+                if (eventCache.hasOwnProperty('yline')) {
+                    currSheet.sheet.dom.style.cursor = "s-resize"
+                } else if (eventCache.hasOwnProperty('xline')) {
+                    currSheet.sheet.dom.style.cursor = "w-resize"
+                }
+                return false
+            }
+
+            if(this.cache.boxobj){
+                let obj = currSheet.sheet.getBoxFromXY(e.offsetX, e.offsetY)
+                if (obj.type == "body") {
+
+                }
+                console.log(obj)
+            }
+
+        } else {
+            // 未点击
+            currSheet.isMoveLine = currSheet.sheet.isNearbyLine(e.offsetX, e.offsetY)
+            if (currSheet.isMoveLine) {
+                // w-resize 水平调整 |s-resize 垂直调整
+                if (currSheet.isMoveLine.hasOwnProperty('yline')) {
+                    currSheet.sheet.dom.style.cursor = "s-resize"
+                } else if (currSheet.isMoveLine.hasOwnProperty('xline')) {
+                    currSheet.sheet.dom.style.cursor = "w-resize"
+                }
+
+            } else {
+                // console.log("default")
+                currSheet.sheet.dom.style.cursor = "default"
+            }
+
         }
     }
     mouseupHandle(e) {
@@ -509,7 +653,7 @@ class ControlSheet {
         if (isMouseDown && eventCache) {
             // 按下鼠标后移动
             let currSheet = this.sheets[this.currentSheetIndex]
-            console.log("mouseupHandle this.eventCache", eventCache)
+            // console.log("mouseupHandle this.eventCache", eventCache)
             if (eventCache.xline) {
                 // 移动纵向，列
                 currSheet.sheet.setLineArr({
@@ -521,13 +665,15 @@ class ControlSheet {
             if (eventCache.yline) {
                 // 移动横向 行
                 currSheet.sheet.setLineArr({
-                    y: eventCache.xline,
+                    y: eventCache.yline,
                     t: e.offsetY
                 })
 
             }
+
         }
-        isMouseDown = false
+        this.isMouseDown = false
+        this.eventCache = null
         // let currSheet = this.sheets[this.currentSheetIndex]
 
     }
