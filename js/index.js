@@ -125,9 +125,11 @@ class CreateSheet {
 
                 obj.isMerge = false //是否被合并,默认false
                 obj.mergeName = "" //如果被合并，指向的容器名字
+                obj.mergeCs = "" //如果被合并，指向容器的数字坐标用英文逗号隔开
                 // obj.contentType=""//文字 图片等 暂时都是文字
 
-
+                obj.col = i //哪一列
+                obj.row = j //哪一行
                 if (i == 0) {
                     //左侧第一列
                     obj.type = "left" // head | left | body
@@ -465,7 +467,8 @@ class ControlSheet {
 
         let sidom = document.getElementById("SelectAndInput")
         let canvasDom = document.getElementById("canvasExcel")
-        canvasDom.addEventListener("mousedown", this.canvasBrokers.bind(this))
+        canvasDom.addEventListener("mousedown", this.canvasExcelMousedown.bind(this))
+        canvasDom.addEventListener("mouseup", this.canvasExcelMouseup.bind(this))
         // sidom.addEventListener("mousedown", this.sidom_mousedownHandle.bind(this))
         // 单击一下body 选中，单击后拖动鼠标 多选，双击一个显示input
 
@@ -486,14 +489,29 @@ class ControlSheet {
         this.isDoubleclick.time = Date.now()
         return false
     }
-    canvasBrokers(e) {
+    canvasExcelMouseup(e){
+        console.log("canvasExcelMouseup")
+        if (this.isMouseDown && this.cache.boxobj) {
+
+            this.cache.boxobj = null
+        }
+        this.isMouseDown = false
+    }
+    canvasExcelMousedown(e) {
         let t = e.target
+        this.isMouseDown = true
+        let currSheet = this.sheets[this.currentSheetIndex]
+
+        console.log(e)
         if (t.nodeName == "CANVAS") {
 
         } else if (t.className == "selectAndInput" || t.className == "si_circle") {
             let dc = this.isDouble()
+            let obj = currSheet.sheet.getBoxFromXY(e.pageX, e.pageY)
             if (dc) {
                 // 双击 显示input
+                
+                console.log("isDouble .cache.boxobj",obj)
                 this.inputDom.style.display = "block"
             } else {
                 // 单击选中 显示框
@@ -535,11 +553,17 @@ class ControlSheet {
 
         // console.log("isDouble = ",this.isDouble())
         let obj = currSheet.sheet.getBoxFromXY(e.offsetX, e.offsetY)
-        console.log("obj = ", obj)
+        // console.log("obj = ", obj)
         if (obj.type == "body") {
             if(this.cache.boxobj == obj){
                 // 同一个box
             }else{
+
+                // if(this.inputDom.value){
+                //     obj.content = this.inputDom.value
+                // }
+                this.inputDom.value = ""
+                // 如果前一个选择有数据，要绘制到页面上，
                 this.inputDom.style.display = "none"
                 this.selectDom.style.display = "none"
                 this.selectDom.style.cssText = "top:" + (obj.y.n - 2) + "px;left:" + (obj.x.n - 2) + "px;width:" + obj.width + "px;height:" + obj.height + "px;display:block"
@@ -620,9 +644,37 @@ class ControlSheet {
             if(this.cache.boxobj){
                 let obj = currSheet.sheet.getBoxFromXY(e.offsetX, e.offsetY)
                 if (obj.type == "body") {
+                    // 以选中的box中，最小的x和y
+                    // let col = obj.col > this.cache.boxobj.col ? this.cache.boxobj.col : obj.col
+                    // let row = obj.row > this.cache.boxobj.row ? this.cache.boxobj.row : obj.row
+                    // console.log(currSheet.sheet.cells[col][row])
+                    let col = 0 ,row = 0,xwidth = 0,yheight = 0
+                    if( obj.col > this.cache.boxobj.col){
+                        col = this.cache.boxobj.col
+                        xwidth = obj.x.n + obj.width - this.cache.boxobj.x.n
+                    }else{
+                        col = obj.col
+                        xwidth = this.cache.boxobj.x.n + this.cache.boxobj.width - obj.x.n
+                    }
 
+                    if( obj.row > this.cache.boxobj.row){
+                        row = this.cache.boxobj.row
+                        yheight = obj.y.n + obj.height - this.cache.boxobj.y.n
+                    }else{
+                        row = obj.row
+                        yheight = this.cache.boxobj.y.n + this.cache.boxobj.height - obj.y.n
+                    }
+
+                    let target = currSheet.sheet.cells[col][row]
+                    this.inputDom.value = ""
+                    // 如果前一个选择有数据，要绘制到页面上，
+                    this.inputDom.style.display = "none"
+                    this.selectDom.style.display = "none"
+                    this.selectDom.style.cssText = "top:" + (target.y.n - 2) + "px;left:" + (target.x.n - 2) + "px;width:" + xwidth + "px;height:" + yheight + "px;display:block"
+        
+                    
                 }
-                console.log(obj)
+                
             }
 
         } else {
@@ -649,7 +701,7 @@ class ControlSheet {
             isMouseDown,
             eventCache
         } = this
-
+        console.log("mouseupHandle")
         if (isMouseDown && eventCache) {
             // 按下鼠标后移动
             let currSheet = this.sheets[this.currentSheetIndex]
@@ -672,6 +724,7 @@ class ControlSheet {
             }
 
         }
+       
         this.isMouseDown = false
         this.eventCache = null
         // let currSheet = this.sheets[this.currentSheetIndex]
