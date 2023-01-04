@@ -5,91 +5,22 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            border: 0;
-            font-size: 12px;
-        }
-        input,select,option,textarea{outline: none;}
-        html,
-        body {
-            height: 100%;
-        }
-
-        .row {
-            width: 1000px;
-            height: 600px;
-            overflow: auto;
-            position: relative;
-        }
-
-        .excel {
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-            width: 1500px;
-            height: 700px;
-        }
-
-        #canvasExcel {
-            overflow: scroll;
-            position: absolute;
-            top: 0;
-            left: 0;
-            /* min-height: 100%; */
-            width: 1500px;
-            height: 650px;
-            z-index: 10;
-            /* border: 1px solid red; */
-        }
-
-        .panel {
-            width: 3900px;
-            height: 8000px;
-            /* width: 7800px;
-            height: 16000px; */
-            
-            /* border: 1px solid red; */
-            
-            cursor: default;
-        }
-
-        .assistPanel {
-            z-index: 12;
-            visibility: hidden;
-        }
-
-        .title {
-            /* background-color: #217346; */
-            height: 43px;
-            overflow: hidden;
-
-        }
-        .selectAndInput{
-            position: absolute;
-            z-index: 20;
-            top:0; left: 0;
-            pointer-events: auto;
-            background-color:rgba(198, 198, 198, 0.3);;
-        }
-        .selectAndInput .si_circle{
-            border: 2px solid #217346;
-            width: 100%; height: 100%;
-        }
-        .selectAndInput .si_circle input{
-            width: 100%; height: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="./css/main.css">
+    <title>canvas表格</title>
 </head>
 <!-- cursor w-resize 水平调整 |s-resize 垂直调整 -->
 <body >
     <div class="excel">
-        <div class="title"></div>
-        <div class="gongneng"></div>
-        <div class="editbox"></div>
+        <div class="menuBox">
+            <div class="title"></div>
+            <div class="gongneng"></div>
+            <div class="editbox">
+                <!-- 不管切换哪个文档，这里通用 -->
+                <div id="quoteName" class="quote">AH32</div>
+                <div class="currentWord"><input id="currWordInput" class="curr_nput" type="text" /></div>
+            </div>
+        </div>
+
         <div id="canvasExcel">
             <canvas id="dataCanvas0" class="panel" width="7800" height="16000"> 您的浏览器不支持canvas</canvas>
             <!-- <canvas id="assistCanvas" class="panel assistPanel" width="7800" height="16000"> 您的浏览器不支持canvas</canvas> -->
@@ -99,7 +30,7 @@
                 </div>
             </div>
         </div>
-        
+
     </div>
 
     <!-- spreadjs输入框样式 -->

@@ -1,0 +1,105 @@
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 12px;
+}
+input,select,option,textarea{outline: none;}
+html,
+body {
+    height: 100%;
+}
+
+.row {
+    width: 1000px;
+    height: 600px;
+    overflow: auto;
+    position: relative;
+}
+
+.excel {
+    
+    position: relative;
+    /* overflow: hidden;
+    width: 1500px;
+    height: 700px; */
+}
+.menuBox{
+    width: 100%;
+}
+.title {
+    /* background-color: #217346; */
+    height: 43px;
+    overflow: hidden;
+
+}
+.editbox{
+    height: 30px;
+    border: 1px solid #e6e6e6;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+.editbox .quote{
+    height: 30px;
+    flex-basis: 150px;
+    flex-grow: 0;
+    text-align: center;
+    overflow: hidden;
+    line-height: 30px;
+    font-size: 16px;
+    border-right: 1px solid #e6e6e6;
+}
+.editbox .currentWord{
+    height: 30px;
+    flex-grow: 99;
+    overflow: hidden;
+}
+.editbox .currentWord .curr_nput{
+    height: 30px;
+    width: 100%;
+    font-size: 16px;
+}
+#canvasExcel {
+    overflow: scroll;
+    position: absolute;
+    /* top: 0; */
+    left: 0;
+    /* min-height: 100%; */
+    width: 1500px;
+    height: 650px;
+    z-index: 10;
+    /* border: 1px solid red; */
+}
+
+.panel {
+    width: 3900px;
+    height: 8000px;
+    /* width: 7800px;
+    height: 16000px; */
+    
+    /* border: 1px solid red; */
+    
+    cursor: default;
+}
+
+.assistPanel {
+    z-index: 12;
+    visibility: hidden;
+}
+
+
+.selectAndInput{
+    position: absolute;
+    z-index: 20;
+    top:0; left: 0;
+    pointer-events: auto;
+    background-color:rgba(198, 198, 198, 0.3);;
+}
+.selectAndInput .si_circle{
+    border: 2px solid #217346;
+    width: 100%; height: 100%;
+}
+.selectAndInput .si_circle input{
+    width: 100%; height: 100%;
+}

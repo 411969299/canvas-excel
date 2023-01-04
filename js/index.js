@@ -2,26 +2,27 @@ function getDom(s) {
     return document.getElementById(s)
 }
 
-function createCellPos(n) {
-    // 通过utf-16字符集来显示
-    var ordA = 'A'.charCodeAt(0);
-    var ordZ = 'Z'.charCodeAt(0);
-    var len = ordZ - ordA + 1;
-    var s = "";
-    while (n >= 0) {
-        s = String.fromCharCode(n % len + ordA) + s;
-        n = Math.floor(n / len) - 1;
-    }
-    return s;
-}
+// function createCellPos(n) {
+//     // 通过utf-16字符集来显示
+//     var ordA = 'A'.charCodeAt(0);
+//     var ordZ = 'Z'.charCodeAt(0);
+//     var len = ordZ - ordA + 1;
+//     var s = "";
+//     while (n >= 0) {
+//         s = String.fromCharCode(n % len + ordA) + s;
+//         n = Math.floor(n / len) - 1;
+//     }
+//     return s;
+// }
 
 function createCellPos2(n) {
     // 参数 n 必须为数值
 
-    let sn = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" // 可以用任意自定义字符
+    
     if (Object.prototype.toString.call(n) !== "[object Number]" || n < 1) {
         return null
     }
+    let sn = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" // 可以用任意自定义字符
     n = parseInt(n) - 1
     let len = sn.length
     if (n < len) {
@@ -34,10 +35,10 @@ function createCellPos2(n) {
     }
     return s;
 }
-// console.log(createCellPos2(26*26))
+// console.log(createCellPos2(26*26*26))
 // console.log(createCellPos2(26*26+1))
-// console.log(createCellPos2(27*26+1))
-// console.log(createCellPos2(28))
+// console.log(createCellPos2(27*26-1))
+// console.log(createCellPos2(27))
 // console.log(createCellPos2(29))
 // let  bbb= 0 || !!0
 // console.log(bbb)
